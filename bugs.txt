@@ -5,3 +5,4 @@ Improvements:
 - Add outlines to squares in pieces
 - Score
 - Lose condition
+- Better colors?

@@ -128,7 +128,7 @@ update = function() {
     }
 
     // Update current piece
-    y = Math.min(Math.max((y + Math.floor(block_size / 20)), 0), canvas.height - block_size);
+    y = y + Math.floor(block_size / 20)
 }
 
 // Use frame_lock so that only one frame is processed at a time
