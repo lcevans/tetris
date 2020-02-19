@@ -49,6 +49,7 @@ initializeCanvas = function() {
 }
 
 initializePiece = function() {
+    console.log("Initializing piece")
     do
     {
         i = Math.floor(Math.random() * canvas.width / block_size);
@@ -60,8 +61,8 @@ initializePiece = function() {
 
         // TODO: Random rotation
     }
-    while (!piece.some(offset => collision(i + offset[0], j + offset[1]))) // Make sure piece is not already blocked
-
+    while (piece.some(offset => collision(i + offset[0], j + offset[1]))) // Make sure piece is not already blocked
+    console.log("Finished initializing piece")
 }
 
 render = function() {
@@ -89,14 +90,12 @@ render = function() {
 
 collision = function(i, j) {
     // Boolean: Is this index a "wall" (block or out of bounds)
-    return (i < 0 || i > board.length || j < 0 || j > board[0].length
-            || board[i][j] != 0)
+    // Note: It is ok to be above the ceiling
+    return (i < 0 || i >= board.length || j >= board[0].length
+            || (j > 0 && board[i][j] != 0))
 }
 
 update = function() {
-    // Update current piece
-    y = Math.min(Math.max((y + Math.floor(block_size / 20)), 0), canvas.height - block_size);
-
     // See if landed on floor or another block
     i = Math.floor(x / block_size);
     j = Math.floor(y / block_size);
@@ -127,13 +126,19 @@ update = function() {
             board[col][0] = 0;
         }
     }
+
+    // Update current piece
+    y = Math.min(Math.max((y + Math.floor(block_size / 20)), 0), canvas.height - block_size);
 }
 
-
-
-gameLoop = function() {
+// Use frame_lock so that only one frame is processed at a time
+let frame_lock = false
+stepFrame = function() {
+    if (frame_lock) return;
+    frame_lock = true
     update()
     render()
+    frame_lock = false
 }
 
 document.addEventListener('keydown', function(event) {
@@ -171,5 +176,5 @@ window.onload = function() {
     initializeCanvas()
     initializeBoard()
     initializePiece()
-    setInterval(gameLoop, 16); // ~60 FPS
+    setInterval(stepFrame, 16); // ~60 FPS
 };

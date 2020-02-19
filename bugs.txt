@@ -1,7 +1,7 @@
 Bugs:
-- misc blocks appear at the top. I think this is because a new block which sticks out of the top or side gives a collision => is seen as landed
-- Not all pieces appear (probably some cannot because they collider with ceiling or walls)
 - Cannot slide pieces into cracks
 
 Improvements:
 - Add outlines to squares in pieces
+- Score
+- Lose condition
