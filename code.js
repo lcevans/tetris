@@ -95,11 +95,25 @@ collision = function(i, j) {
             || (j > 0 && board[i][j] != 0))
 }
 
+const LANDING_DELAY = 10 // frames
+let frames_landed = 0
 update = function() {
-    // See if landed on floor or another block
+    // Piece descends
+    y = y + Math.floor(block_size / 20)
+
+    // See if landed
     i = Math.floor(x / block_size);
     j = Math.floor(y / block_size);
-    if (piece.some(offset => collision(i + offset[0], j + offset[1] + 1))) { // check block below each block of piece
+    if (piece.some(offset => collision(i + offset[0], j + offset[1] + 1))) { // Landed
+        frames_landed++;
+        y = j * block_size; // Move back out to above ground
+    }
+    else {
+        frames_landed = 0
+    }
+
+    // After being landed for a while, fix the piece and start a new one
+    if (frames_landed >= LANDING_DELAY) {
         for (offset of piece) {
             board[i + offset[0]][j + offset[1]] = color_idx;
         }
@@ -127,18 +141,18 @@ update = function() {
         }
     }
 
-    // Update current piece
-    y = y + Math.floor(block_size / 20)
+    // // Piece falls if not landed
+    // if (frames_landed == 0)
+    // {
+    //     y = y + Math.floor(block_size / 20)
+    // }
+
+
 }
 
-// Use frame_lock so that only one frame is processed at a time
-let frame_lock = false
 stepFrame = function() {
-    if (frame_lock) return;
-    frame_lock = true
     update()
     render()
-    frame_lock = false
 }
 
 document.addEventListener('keydown', function(event) {
@@ -165,9 +179,14 @@ document.addEventListener('keydown', function(event) {
     }
     else if(event.keyCode == 38) {
         // up
-        // Rotate piece
+        // Rotate piece. But only if doing so wouldn't cause collision
         for (let idx in piece) {
             piece[idx] = [-piece[idx][1], piece[idx][0]]
+        }
+        if (piece.some(offset => collision(i + offset[0], j + offset[1]))) { // If collides, rotate back
+            for (let idx in piece) {
+                piece[idx] = [piece[idx][1], -piece[idx][0]]
+            }
         }
     }
 });

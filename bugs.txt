@@ -1,8 +1,10 @@
 Bugs:
-- Cannot slide pieces into cracks
+- Weirdness with ceiling? (see lose condition)
+
 
 Improvements:
 - Add outlines to squares in pieces
 - Score
 - Lose condition
 - Better colors?
+  - Same color for a given piece
