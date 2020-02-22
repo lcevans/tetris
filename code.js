@@ -35,8 +35,8 @@ let x;
 let y = 0;
 let color_idx;
 let piece;
-let next_piece_color_idx = 2; // TODO Dont initialize here!
-let next_piece;
+let next_piece_color_idx = 2; // TODO: Dont initialize here?
+let next_piece = PIECES[next_piece_color_idx];
 
 // Board
 initializeBoard = function() {
@@ -59,26 +59,28 @@ initializeCanvas = function() {
 initializePiece = function() {
     i = Math.floor(canvas.width / 2 / block_size);
     j = 0;
+    color_idx = next_piece_color_idx
+    piece = JSON.parse(JSON.stringify(next_piece)); // Use JSON as a hacky deep copy
     do
     {
         x = i * block_size;
         y = j * block_size;
-        color_idx = next_piece_color_idx
-        next_piece_color_idx = 1 + Math.floor(Math.random() * 6);
-        piece = JSON.parse(JSON.stringify(PIECES[color_idx])); // Use JSON as a hacky deep copy
-        next_piece = JSON.parse(JSON.stringify(PIECES[next_piece_color_idx]));
 
-        // Random rotation
-        let num_rotations = Math.floor(Math.random() * 4);
-        for (let n = 1; n < num_rotations; n++)
-        {
-            for (let idx in piece) {
-                piece[idx] = [-piece[idx][1], piece[idx][0]]
-            }
-        }
         j--; // Start higher (offscreen) if needed
     }
     while (piece.some(offset => collision(i + offset[0], j + offset[1]))) // Make sure piece is not already blocked
+
+    // Set up next piece
+    next_piece_color_idx = 1 + Math.floor(Math.random() * 6);
+    next_piece = PIECES[next_piece_color_idx];
+    // Random rotation
+    let num_rotations = Math.floor(Math.random() * 4);
+    for (let n = 1; n < num_rotations; n++)
+    {
+        for (let idx in piece) {
+            next_piece[idx] = [-next_piece[idx][1], next_piece[idx][0]]
+        }
+    }
 }
 
 render = function() {
