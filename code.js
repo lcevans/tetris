@@ -36,6 +36,7 @@ let y = 0;
 let color_idx;
 let piece;
 let next_piece_color_idx = 2; // TODO Dont initialize here!
+let next_piece;
 
 // Board
 initializeBoard = function() {
@@ -56,17 +57,26 @@ initializeCanvas = function() {
 }
 
 initializePiece = function() {
+    i = Math.floor(canvas.width / 2 / block_size);
+    j = 0;
     do
     {
-        i = Math.floor(Math.random() * canvas.width / block_size);
-        j = 0;
         x = i * block_size;
         y = j * block_size;
         color_idx = next_piece_color_idx
         next_piece_color_idx = 1 + Math.floor(Math.random() * 6);
-        piece = PIECES[color_idx]; // TODO: Deep copy? Maybe doesn't matter...
+        piece = JSON.parse(JSON.stringify(PIECES[color_idx])); // Use JSON as a hacky deep copy
+        next_piece = JSON.parse(JSON.stringify(PIECES[next_piece_color_idx]));
 
-        // TODO: Random rotation
+        // Random rotation
+        let num_rotations = Math.floor(Math.random() * 4);
+        for (let n = 1; n < num_rotations; n++)
+        {
+            for (let idx in piece) {
+                piece[idx] = [-piece[idx][1], piece[idx][0]]
+            }
+        }
+        j--; // Start higher (offscreen) if needed
     }
     while (piece.some(offset => collision(i + offset[0], j + offset[1]))) // Make sure piece is not already blocked
 }
@@ -108,7 +118,6 @@ render = function() {
     }
 
     // draw next piece
-    let next_piece = PIECES[next_piece_color_idx]
     for (let offset of next_piece) {
         px = (2 + offset[0]) * block_size;
         py = (2 + offset[1]) * block_size;
