@@ -206,8 +206,13 @@ document.addEventListener('keydown', function(event) {
     }
     else if(event.keyCode == 40) {
         // down
-        if (!piece.some(offset => collision(i + offset[0], j + offset[1] + 1))) { // Not blocked
-            y = y + block_size;
+        if (!piece.some(offset => collision(i + offset[0], j + offset[1] + 1))){ // Not blocked
+            if (!piece.some(offset => collision(i + offset[0], j + offset[1] + 2))) { // Can move a full block_size
+                y = y + block_size;
+            }
+            else { // Only move until landed
+                y = (j + 1) * block_size
+            }
         }
     }
     else if(event.keyCode == 38) {

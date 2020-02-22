@@ -1,5 +1,4 @@
 Bugs:
-- Can move through floor
 - Next piece and current piece linked if the same piece (need deep copy)
 
 Improvements:
