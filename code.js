@@ -2,6 +2,8 @@
 // Global vars
 let canvas
 let ctx
+let next_piece_canvas
+let next_piece_ctx
 let board
 const block_size = 20;
 let score = 0;
@@ -33,6 +35,7 @@ let x;
 let y = 0;
 let color_idx;
 let piece;
+let next_piece_color_idx = 2; // TODO Dont initialize here!
 
 // Board
 initializeBoard = function() {
@@ -48,6 +51,8 @@ initializeBoard = function() {
 initializeCanvas = function() {
     canvas = document.getElementById('canvas')
     ctx = canvas.getContext('2d')
+    next_piece_canvas = document.getElementById('next_piece_canvas')
+    next_piece_ctx = next_piece_canvas.getContext('2d')
 }
 
 initializePiece = function() {
@@ -57,7 +62,8 @@ initializePiece = function() {
         j = 0;
         x = i * block_size;
         y = j * block_size;
-        color_idx = 1 + Math.floor(Math.random() * 6);
+        color_idx = next_piece_color_idx
+        next_piece_color_idx = 1 + Math.floor(Math.random() * 6);
         piece = PIECES[color_idx]; // TODO: Deep copy? Maybe doesn't matter...
 
         // TODO: Random rotation
@@ -69,6 +75,8 @@ render = function() {
     // clear
     ctx.beginPath();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    next_piece_ctx.beginPath();
+    next_piece_ctx.clearRect(0, 0, next_piece_canvas.width, next_piece_canvas.height);
 
     // draw board
     for (let i = 0; i < board.length; i++) {
@@ -98,6 +106,21 @@ render = function() {
         ctx.fill();
         ctx.stroke();
     }
+
+    // draw next piece
+    let next_piece = PIECES[next_piece_color_idx]
+    for (let offset of next_piece) {
+        px = (2 + offset[0]) * block_size;
+        py = (2 + offset[1]) * block_size;
+        next_piece_ctx.beginPath();
+        next_piece_ctx.fillStyle = COLORS[next_piece_color_idx];
+        next_piece_ctx.strokeStyle = BORDER_COLOR;
+        next_piece_ctx.lineWidth = 1;
+        next_piece_ctx.rect(px, py, block_size, block_size);
+        next_piece_ctx.fill();
+        next_piece_ctx.stroke();
+    }
+
 }
 
 collision = function(i, j) {
