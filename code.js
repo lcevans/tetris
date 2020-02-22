@@ -4,26 +4,28 @@ let canvas
 let ctx
 let board
 const block_size = 20;
+let score = 0;
 
 let COLORS = {
     // 0 is used for empty
-    1 : 'rgb(200, 0, 0)', // RED
-    2 : 'rgb(0, 200, 0)', // GREEN
-    3 : 'rgb(0, 0, 200)', // BLUE
-    4 : 'rgb(100, 100, 0)', // YELLOW
-    5 : 'rgb(100, 0, 100)', // PURPLE
-    6 : 'rgb(0, 100, 100)', // TEAL?
+    1 : 'rgb(224, 20, 47)', // RED
+    2 : 'rgb(82, 199, 105)', // GREEN
+    3 : 'rgb(55, 160, 230)', // BLUE
+    4 : 'rgb(227, 232, 95)', // YELLOW
+    5 : 'rgb(196, 114, 237)', // PURPLE
+    6 : 'rgb(245, 190, 103)', // ORANGE
 }
+const BORDER_COLOR = 'rgb(0, 0, 0)'
 
 let PIECES = {
     // Offsets of the 4 squares which make up the tetris piece
-    0 : [[0, 0], [1, 0], [0, 1], [0, -1]],   // T block
-    1 : [[0, 0], [-1, 0], [1, 0], [2, 0]],   // I block
-    2 : [[0, 0], [1, 0], [0, 1], [1, 1]],    // Square block
-    3 : [[0, 0], [-1, 0], [0, 1], [1, 1]],   // S block
-    4 : [[0, 0], [-1, 0], [0, -1], [1, -1]], // S block
-    5 : [[0, 0], [1, 0], [0, 1], [0, 2]],    // L block
-    6 : [[0, 0], [-1, 0], [0, 1], [0, 2]],   // L block
+    1 : [[0, 0], [1, 0], [0, 1], [0, -1]],   // T block
+    2 : [[0, 0], [-1, 0], [1, 0], [2, 0]],   // I block
+    3 : [[0, 0], [1, 0], [0, 1], [1, 1]],    // Square block
+    4 : [[0, 0], [-1, 0], [0, 1], [1, 1]],   // S block
+    5 : [[0, 0], [-1, 0], [0, -1], [1, -1]], // S block
+    6 : [[0, 0], [1, 0], [0, 1], [0, 2]],    // L block
+    7 : [[0, 0], [-1, 0], [0, 1], [0, 2]],   // L block
 }
 
 // Current piece
@@ -49,7 +51,6 @@ initializeCanvas = function() {
 }
 
 initializePiece = function() {
-    console.log("Initializing piece")
     do
     {
         i = Math.floor(Math.random() * canvas.width / block_size);
@@ -57,24 +58,30 @@ initializePiece = function() {
         x = i * block_size;
         y = j * block_size;
         color_idx = 1 + Math.floor(Math.random() * 6);
-        piece = PIECES[Math.floor(Math.random() * 7)]; // TODO: Deep copy? Maybe doesn't matter...
+        piece = PIECES[color_idx]; // TODO: Deep copy? Maybe doesn't matter...
 
         // TODO: Random rotation
     }
     while (piece.some(offset => collision(i + offset[0], j + offset[1]))) // Make sure piece is not already blocked
-    console.log("Finished initializing piece")
 }
 
 render = function() {
     // clear
+    ctx.beginPath();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw board
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
             if (board[i][j] != 0) {
+                ctx.beginPath();
                 ctx.fillStyle = COLORS[board[i][j]];
-                ctx.fillRect(i * block_size, j * block_size, block_size, block_size);
+                ctx.strokeStyle = BORDER_COLOR;
+                ctx.lineWidth = 1;
+                ctx.rect(i * block_size, j * block_size, block_size, block_size);
+                ctx.fill();
+                ctx.stroke();
+
             }
         }
     }
@@ -83,8 +90,13 @@ render = function() {
     for (let offset of piece) {
         px = x + offset[0] * block_size;
         py = y + offset[1] * block_size;
+        ctx.beginPath();
         ctx.fillStyle = COLORS[color_idx];
-        ctx.fillRect(px, py, block_size, block_size);
+        ctx.strokeStyle = BORDER_COLOR;
+        ctx.lineWidth = 1;
+        ctx.rect(px, py, block_size, block_size);
+        ctx.fill();
+        ctx.stroke();
     }
 }
 
@@ -115,6 +127,7 @@ update = function() {
     // After being landed for a while, fix the piece and start a new one
     if (frames_landed >= LANDING_DELAY) {
         for (offset of piece) {
+            if(j + offset[1] < 0) gameOver();
             board[i + offset[0]][j + offset[1]] = color_idx;
         }
         initializePiece()
@@ -139,17 +152,14 @@ update = function() {
         for (let col = 0; col < board.length; col++) {
             board[col][0] = 0;
         }
+
+        score++;
+        document.getElementById("score").innerHTML = "Score: " + score
     }
-
-    // // Piece falls if not landed
-    // if (frames_landed == 0)
-    // {
-    //     y = y + Math.floor(block_size / 20)
-    // }
-
 
 }
 
+let stepFrameID;
 stepFrame = function() {
     update()
     render()
@@ -191,9 +201,15 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+function gameOver() {
+    clearInterval(stepFrameID);
+    document.getElementById("score").innerHTML = "GAME OVER! Final Score: " + score
+}
+
 window.onload = function() {
+    document.getElementById("score").innerHTML = "Score: " + score
     initializeCanvas()
     initializeBoard()
     initializePiece()
-    setInterval(stepFrame, 16); // ~60 FPS
+    stepFrameID = setInterval(stepFrame, 16); // ~60 FPS
 };

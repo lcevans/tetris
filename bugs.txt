@@ -1,10 +1,6 @@
 Bugs:
-- Weirdness with ceiling? (see lose condition)
-
+- Can move through floor
 
 Improvements:
-- Add outlines to squares in pieces
-- Score
-- Lose condition
-- Better colors?
-  - Same color for a given piece
+- Better graphics / UI
+- Show next piece?
